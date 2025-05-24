@@ -8,6 +8,8 @@ from streamlit_option_menu import option_menu
 pdrb = pd.read_excel('PDRB.xlsx')
 Kependudukan = pd.read_excel('Kependudukan.xlsx')
 ketenagakerjaan = pd.read_excel("Ketenagakerjaan.xlsx")
+kemiskinan = pd.read_excel("Kemiskinan.xlsx")
+PManusia = pd.read_excel("PembangunanManusia.xlsx")
 
 with st.sidebar:
     selected = option_menu(
@@ -556,3 +558,255 @@ if selected == "Ketenagakerjaan":
     st.write("   Rasio ketergantungan merupakan salah satu indikator yang penting. Rasio ketergantungan menunjukkan tingginya beban yang harus ditanggung penduduk yang produktif untuk membiayai hidup penduduk yang belum produktif dan penduduk yang sudah tidak produktif lagi. Misalnya terdapat rasio ketergantungan sebesar 43 persen sanggau pada tahun 2024, artinya setiap 100 orang yang berusia produktif di sanggau pada tahun 2024 mempunyai tanggungan sebanyak 43 orang yang tidak produktif.")
     st.subheader("Sumber Data")
     st.write("SUPAS dan Sensus Penduduk ")
+
+if selected == "Kemiskinan":
+    st.title(f"Anda Memasuki Data {selected}")
+    st.write("## Garis Kemiskinan")
+    st.write("Garis kemiskinan merupakan representasi dari jumlah rupiah minimum yangdibutuhkan untuk memenuhi kebutuhan pokok minimum makanan yang setara dengan2100 kilokalori per kapita per hari dan kebutuhan pokok bukan makanan. Gariskemiskinan (GK) merupakan penjumlahan dari Garis Kemiskinan Makanan (GKM)dan Garis Kemiskinan non Makanan (GKNM). Garis kemiskinan makanan merupakannilai pengeluaran kebutuhan minimum makanan yang disetarakan dengan 2100kilokalori per kapita per hari. Paket komoditi kebutuhan dasar makanan diwakili oleh52 jenis komoditi (padi- padian, umbi-umbian, ikan, daging, telur dan susu, sayuran,kacang- kacangan, buah-buahan, minyak, dll.). Garis kemiskinan non makanan adalahkebutuhan minimum untuk perumahan, sandang, Pendidikan, dan Kesehatan. Paketkomoditi kebutuhan dasar non makanan diwakili oleh 51 jenis komoditi di perkotaandan 47 jenis di perdesaan.")
+    # Pilihan kolom PDRB untuk divisualisasikan
+    min_year = pdrb["Tahun"].min()
+    max_year = pdrb["Tahun"].max()
+    start_year, end_year = st.slider(
+        "Pilih rentang tahun:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+        step=1,
+        key = "GK"
+    )
+    # Filter data sesuai tahun
+    filter_kemiskinan = kemiskinan[(kemiskinan["Tahun"] >= start_year) & (kemiskinan["Tahun"] <= end_year)]
+    chart_GK= alt.Chart(filter_kemiskinan).mark_line(point=True).encode(
+        x= alt.X("Tahun:O", title="Tahun"),
+        y= alt.Y("GK:Q", title="Persentase", scale=alt.Scale(zero=False))
+    ).properties(
+        title=f"Garis Kemiskinan dari {start_year} hingga {end_year}"
+    )
+    st.altair_chart(chart_GK, use_container_width=True)
+    st.subheader("Contoh Intepretasi")
+    st.write("Garis kemiskinan menunjukkan jumlah rupiah minimum yang dibutuhkan untuk memenuhi kebutuhan pokok minimum makanan yang setara dengan 2100 kilokalori per kapita per hari dan kebutuhan pokok non makanan. Penduduk yang memiliki rata-rata pengeluaran konsumsi per kapita per bulan di bawah garis kemiskinan dikategorikan sebagai penduduk miskin.")
+    st.subheader("Sumber Data")
+    st.write("Susenas Modul Konsumsi dan Kor.")
+
+    st.write("## Persentase Penduduk Miskin")
+    st.write("Persentase penduduk miskin yang berada di bawah garis kemiskinan. Headcount index secara sederhana mengukur proporsi yang dikategorikan miskin.")
+    # Pilihan kolom PDRB untuk divisualisasikan
+    min_year = pdrb["Tahun"].min()
+    max_year = pdrb["Tahun"].max()
+    start_year, end_year = st.slider(
+        "Pilih rentang tahun:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+        step=1,
+        key = "PPM"
+    )
+    # Filter data sesuai tahun
+    filter_kemiskinan = kemiskinan[(kemiskinan["Tahun"] >= start_year) & (kemiskinan["Tahun"] <= end_year)]
+    chart_GK= alt.Chart(filter_kemiskinan).mark_line(point=True).encode(
+        x= alt.X("Tahun:O", title="Tahun"),
+        y= alt.Y("PersentaseKemiskinan:Q", title="Persentase", scale=alt.Scale(zero=False))
+    ).properties(
+        title=f"Persentase Penduduk Miskin dari {start_year} hingga {end_year}"
+    )
+    st.altair_chart(chart_GK, use_container_width=True)
+    st.subheader("Contoh Intepretasi")
+    st.write("Angka yang ditunjukkan oleh P0 menunjukkan proporsi penduduk miskin di suatu wilayah. Persentase penduduk miskin (P0) yang tinggi menunjukkan bahwa tingkat kemiskinan di suatu wilayah juga tinggi.")
+    st.subheader("Sumber Data")
+    st.write("Survei Sosial Ekonomi Nasional (SUSENAS)")
+
+    st.write("## Indeks Kedalaman Kemiskinan")
+    st.write("Indeks kedalaman kemiskinan (Poverty Gap Index – P1) merupakan ukuran rata rata kesenjangan pengeluaran masing-masing penduduk miskin terhadap garis kemiskinan.")
+    # Pilihan kolom PDRB untuk divisualisasikan
+    min_year = pdrb["Tahun"].min()
+    max_year = pdrb["Tahun"].max()
+    start_year, end_year = st.slider(
+        "Pilih rentang tahun:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+        step=1,
+        key = "KedalamanKemiskinan"
+    )
+    # Filter data sesuai tahun
+    filter_kemiskinan = kemiskinan[(kemiskinan["Tahun"] >= start_year) & (kemiskinan["Tahun"] <= end_year)]
+    chart_GK= alt.Chart(filter_kemiskinan).mark_line(point=True).encode(
+        x= alt.X("Tahun:O", title="Tahun"),
+        y= alt.Y("KedalamanKemiskinan:Q", title="Nilai", scale=alt.Scale(zero=False))
+    ).properties(
+        title=f"Kedalaman Miskin dari {start_year} hingga {end_year}"
+    )
+    st.altair_chart(chart_GK, use_container_width=True)
+    st.subheader("Contoh Intepretasi")
+    st.write("Penurunan nilai indeks kedalaman kemiskinan mengindikasikan bahwa rata- rata pengeluaran penduduk miskin cenderung semakin mendekati garis kemiskinan dan ketimpangan pengeluaran penduduk miskin juga semakin menyempit.")
+    st.subheader("Sumber Data")
+    st.write("Survei Sosial Ekonomi Nasional (SUSENAS)")
+
+    st.write("## Indeks Keparahan Kemiskinan")
+    st.write("Indeks keparahan kemiskinan (Poverty Severity Index – P1) memberikan gambaran mengenai penyebaran pengeluaran di antara penduduk miskin.")
+    # Pilihan kolom PDRB untuk divisualisasikan
+    min_year = pdrb["Tahun"].min()
+    max_year = pdrb["Tahun"].max()
+    start_year, end_year = st.slider(
+        "Pilih rentang tahun:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+        step=1,
+        key = "KeparahanKemiskinan"
+    )
+    # Filter data sesuai tahun
+    filter_kemiskinan = kemiskinan[(kemiskinan["Tahun"] >= start_year) & (kemiskinan["Tahun"] <= end_year)]
+    chart_GK= alt.Chart(filter_kemiskinan).mark_line(point=True).encode(
+        x= alt.X("Tahun:O", title="Tahun"),
+        y= alt.Y("KeparahanKemiskinan:Q", title="Nilai", scale=alt.Scale(zero=False))
+    ).properties(
+        title=f"Keparahan Miskin dari {start_year} hingga {end_year}"
+    )
+    st.altair_chart(chart_GK, use_container_width=True)
+    st.subheader("Contoh Intepretasi")
+    st.write("Semakin tinggi nilai indeks, semakin tinggi ketimpangan pengeluaran di antara penduduk miskin.")
+    st.subheader("Sumber Data")
+    st.write("Survei Sosial Ekonomi Nasional (SUSENAS)")
+
+if selected == "Pembangunan Manusia":
+    st.title(f"Anda Memasuki Data {selected}")
+    st.write("## Angka Harapan Hidup")
+    st.write("Rata-rata tahun hidup yang masih akan dijalani oleh seseorang yang telah berhasil mencapai umur x, pada suatu tahun tertentu dalam situasi mortalitas yang berlaku di lingkungan masyarakat. Penggunaan AHH didasarkan atas pertimbangan bahwa angka ini merupakan hasil dari berbagai indikator kesehatan. AHH merupakan cerminan dari ketersediaan sarana dan prasarana kesehatan, sanitasi lingkungan, pengetahuan ibu tentang kesehatan, gaya hidup masyarakat, pemenuhan gizi ibu dan bayi, dan lain- lain.")
+    # Pilihan kolom PDRB untuk divisualisasikan
+    min_year = pdrb["Tahun"].min()
+    max_year = pdrb["Tahun"].max()
+    start_year, end_year = st.slider(
+        "Pilih rentang tahun:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+        step=1,
+        key = "AHH"
+    )
+    # Filter data sesuai tahun
+    filter_pembangunan = PManusia[(PManusia["Tahun"] >= start_year) & (PManusia["Tahun"] <= end_year)]
+    chart_AHH= alt.Chart(filter_pembangunan).mark_line(point=True).encode(
+        x= alt.X("Tahun:O", title="Tahun"),
+        y= alt.Y("AHH:Q", title="Tahun", scale=alt.Scale(zero=False)),
+        tooltip=["Tahun:O", "AHH:Q"] 
+    ).properties(
+        title=f"Angka Harapan Hidup dari {start_year} hingga {end_year}"
+    )
+    st.altair_chart(chart_AHH, use_container_width=True)
+    st.subheader("Contoh Intepretasi")
+    st.write("Angka harapan hidup menggambarkan rata-rata tahun hidup yang dijalani oleh seseorang. Misalnya angka harapan hidup Indonesia yang terhitung untuk Indonesia dari Sensus Penduduk tahun 1971 adalah 47,7 tahun, artinya bayi-bayi yang dilahirkan menjelang tahun 1971 akan dapat hidup sampai 47 sampai 48 tahun.")
+    st.subheader("Sumber Data")
+    st.write("Sensus Penduduk, Registrasi Penduduk, Survei Penduduk Antar Sensus (SUPAS), Survei Sosial Ekonomi Nasional (Susenas).")
+
+    st.write("## Rata-rata Lama Sekolah")
+    st.write("Rata-rata lama sekolah (Mean Years School/MYS) adalah jumlah tahun yang digunakan oleh penduduk dalam menjalani pendudukan formal. Diasumsikan bahwa dalam kondisi normal rata-rata lama sekolah suatu wilayah tidak akan turun. Cakupan penduduk yang dihitung dalam penghitungan rata-rata lama sekolah adalah penduduk berusia 25 tahun ke atas.")
+    # Pilihan kolom PDRB untuk divisualisasikan
+    min_year = pdrb["Tahun"].min()
+    max_year = pdrb["Tahun"].max()
+    start_year, end_year = st.slider(
+        "Pilih rentang tahun:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+        step=1,
+        key = "RLS"
+    )
+    # Filter data sesuai tahun
+    filter_pembangunan = PManusia[(PManusia["Tahun"] >= start_year) & (PManusia["Tahun"] <= end_year)]
+    chart_RLS= alt.Chart(filter_pembangunan).mark_line(point=True).encode(
+        x= alt.X("Tahun:O", title="Tahun"),
+        y= alt.Y("RLS:Q", title="Tahun", scale=alt.Scale(zero=False)),
+        tooltip=["Tahun:O", "RLS:Q"] 
+    ).properties(
+        title=f"Rata-rata lama sekolah dari {start_year} hingga {end_year}"
+    )
+    st.altair_chart(chart_RLS, use_container_width=True)
+    st.subheader("Contoh Intepretasi")
+    st.write("Tingginya angka Rata-rata lama sekolah menunjukkan jenjang Pendidikan yang pernah/sedang diduduki oleh seseorang. Semakin tinggi angka RLS maka semakin lama/tinggi jenjang Pendidikan yang ditamatkannya.")
+    st.subheader("Sumber Data")
+    st.write("Sensus Penduduk, Survei Penduduk Antar Sensus (SUPAS), Survei Sosial Ekonomi Nasional (SUSENAS).")
+
+    st.write("## Harapan Lama Sekolah")
+    st.write("Angka Harapan Lama Sekolah (HLS) dihitung pada penduduk berusia 7 tahun ke atas. HLS dihitung pada usia 7 tahun ke atas karena mengikuti kebijakan pemerintah yaitu program wajib belajar. Diasumsikan bahwa peluang anak tersebut akan tetap bersekolah pada umur-umur berikutnya sama dengan peluang penduduk yang bersekolah per jumlah penduduk untuk umur yang sama saat ini.")
+    # Pilihan kolom PDRB untuk divisualisasikan
+    min_year = pdrb["Tahun"].min()
+    max_year = pdrb["Tahun"].max()
+    start_year, end_year = st.slider(
+        "Pilih rentang tahun:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+        step=1,
+        key = "HLS"
+    )
+    # Filter data sesuai tahun
+    filter_pembangunan = PManusia[(PManusia["Tahun"] >= start_year) & (PManusia["Tahun"] <= end_year)]
+    chart_HLS= alt.Chart(filter_pembangunan).mark_line(point=True).encode(
+        x= alt.X("Tahun:O", title="Tahun"),
+        y= alt.Y("HLS:Q", title="Tahun", scale=alt.Scale(zero=False)),
+        tooltip=["Tahun:O", "HLS:Q"] 
+    ).properties(
+        title=f"Harapan lama sekolah dari {start_year} hingga {end_year}"
+    )
+    st.altair_chart(chart_HLS, use_container_width=True)
+    st.subheader("Contoh Intepretasi")
+    st.write("Tingginya angka harapan lama sekolah (HLS) menunjukkan lamanya sekolah yang diharapkan oleh anak pada umur tertentu di masa mendatang. Semakin tinggi angka HLS maka semakin lama/tinggi jenjang Pendidikan yang diharapkan akan ditamatkannya.")
+    st.subheader("Sumber Data")
+    st.write("Sensus Penduduk, Survei Penduduk Antar Sensus (SUPAS), Survei Sosial Ekonomi Nasional (SUSENAS), Direktorat Pendidikan Islam Kemenag.")
+   
+    st.write("## Rata-rata Pengeluaran Per Kapita yang Disesuaikan")
+    st.write("Rata-rata pengeluaran per kapita yang disesuaikan (Purchasing Power Parity/PPP) atau daya beli adalah kemampuan masyarakat dalam membelanjakan uangnya dalam bentuk barang maupun jasa. Penghitungan paritas daya beli menggunakan 96komoditas dimana 66 komoditas merupakan makanan dan 30 komoditas merupakan komoditas non makanan.")
+    # Pilihan kolom PDRB untuk divisualisasikan
+    min_year = pdrb["Tahun"].min()
+    max_year = pdrb["Tahun"].max()
+    start_year, end_year = st.slider(
+        "Pilih rentang tahun:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+        step=1,
+        key = "RPP"
+    )
+    # Filter data sesuai tahun
+    filter_pembangunan = PManusia[(PManusia["Tahun"] >= start_year) & (PManusia["Tahun"] <= end_year)]
+    chart_RPP= alt.Chart(filter_pembangunan).mark_line(point=True).encode(
+        x= alt.X("Tahun:O", title="Tahun"),
+        y= alt.Y("RatarataPengeluaran:Q", title="juta Rp/Thn", scale=alt.Scale(zero=False)),
+        tooltip=["Tahun:O", "RatarataPengeluaran:Q"] 
+    ).properties(
+        title=f"Rata-rata pengeluaran per kapita yang disesuaikan dari {start_year} hingga {end_year}"
+    )
+    st.altair_chart(chart_RPP, use_container_width=True)
+    st.subheader("Contoh Intepretasi")
+    st.write("Kemampuan daya beli antar daerah berbeda-beda. Semakin rendahnya nilai daya beli suatu masyarakat berkaitan erat dengan kondisi perekonomian pada saat itu yang sedang memburuk yang berarti semakin rendah kemampuan masyarakat untuk membeli suatu barang atau jasa.")
+    st.subheader("Sumber Data")
+    st.write("Survei Sosial Ekonomi Nasional (SUSENAS)")
+
+    st.write("## Indeks Pembangunan Manusia ")
+    st.write("IPM adalah indeks yang mengukur pembangunan manusia dari tiga aspek dasar yaitu umur Panjang dan hidup sehat; pengetahuan/Pendidikan; dan standar hidup layak. Ketiga aspek tersebut memiliki pengertian yang sangat luas karena merupakan gabungan dari berbagai faktor. Untuk mengukur dimensi Kesehatan, digunakan angka harapan hidup waktu lahir. Selanjutnya untuk mengukur dimensi Pendidikan digunakan gabungan indikator rata-rata lama sekolah dan angka harapan lama sekolah. Adapun untuk mengukur dimensi hidup layak digunakan indikator kemampuan daya beli masyarakat terhadap sejumlah kebutuhan pokok yang dilihat dari rata-rata besarnya pengeluaran per kapita.")
+    # Pilihan kolom PDRB untuk divisualisasikan
+    min_year = pdrb["Tahun"].min()
+    max_year = pdrb["Tahun"].max()
+    start_year, end_year = st.slider(
+        "Pilih rentang tahun:",
+        min_value=min_year,
+        max_value=max_year,
+        value=(min_year, max_year),
+        step=1,
+        key = "IPM"
+    )
+    # Filter data sesuai tahun
+    filter_pembangunan = PManusia[(PManusia["Tahun"] >= start_year) & (PManusia["Tahun"] <= end_year)]
+    chart_IPM= alt.Chart(filter_pembangunan).mark_line(point=True).encode(
+        x= alt.X("Tahun:O", title="Tahun"),
+        y= alt.Y("IPM:Q", title="Poin", scale=alt.Scale(zero=False)),
+        tooltip=["Tahun:O", "IPM:Q"] 
+    ).properties(
+        title=f"Indeks Pembangunan Manusia dari {start_year} hingga {end_year}"
+    )
+    st.altair_chart(chart_IPM, use_container_width=True)
+    st.subheader("Contoh Intepretasi")
+    st.write("Angka IPM memberikan gambaran komprehensif mengenai tingkat pencapaian pembangunan manusia sebagai dampak dari kegiatan pembangunan yang dilakukan oleh suatu negara/daerah. Semakin tinggi nilai IPM suatu negara/daerah, menunjukkan pencapaian pembangunan manusianya semakin baik.")
+    st.subheader("Sumber Data")
+    st.write("Survei Sosial Ekonomi Nasional (SUSENAS) dan Survei Angkatan Kerja Nasional (SAKERNAS) ")
