@@ -5,17 +5,63 @@ from matplotlib import ticker
 import altair as alt
 from streamlit_option_menu import option_menu
 
+
 pdrb = pd.read_excel('PDRB.xlsx')
+adhk_Lapus = pd.read_excel("ADHK_Lapus.xlsx")
+adhb_Lapus = pd.read_excel("ADHB_Lapus.xlsx")
 Kependudukan = pd.read_excel('Kependudukan.xlsx')
 ketenagakerjaan = pd.read_excel("Ketenagakerjaan.xlsx")
 kemiskinan = pd.read_excel("Kemiskinan.xlsx")
 PManusia = pd.read_excel("PembangunanManusia.xlsx")
 
+##with st.sidebar:
+##    selected = option_menu(
+##        menu_title = "Main Menu",
+##        options =["PDRB", "Kependudukan", "Ketenagakerjaan", "Kemiskinan", "Pembangunan Manusia"],
+##    )
+st.set_page_config(layout="wide")
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebar"] {
+        background-color: #212d0d;  /* hijau tua */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Sidebar content
 with st.sidebar:
+    st.markdown("<h1 style='color: white;'>Data Strategis</h1>", unsafe_allow_html=True)
+
     selected = option_menu(
-        menu_title = "Main Menu",
-        options =["PDRB", "Kependudukan", "Ketenagakerjaan", "Kemiskinan", "Pembangunan Manusia"],
+        menu_title=None,
+        options=["PDRB", "Kependudukan", "Ketenagakerjaan", "Kemiskinan", "Pembangunan Manusia"],
+        icons=["person", "info-circle", "bar-chart", "people", "briefcase"],
+        default_index=0,
+        styles={
+            "container": {
+                "padding": "5!important",
+                "background-color": "#212d0d",  # warna dalam container
+                "border-radius": "10px"
+            },
+            "icon": {"color": "white", "font-size": "18px"},
+            "nav-link": {
+                "font-size": "16px",
+                "color": "white",
+                "text-align": "left",
+                "margin": "2px",
+                "--hover-color": "#212d0d"
+            },
+            "nav-link-selected": {
+                "background-color": "#3e4c1f",
+                "color": "white",
+                "font-weight": "bold"
+            }
+        }
     )
+
 if selected == "PDRB":
     st.title(f"Anda Memasuki Data {selected}")
     st.write("## PDRB")
@@ -36,7 +82,6 @@ if selected == "PDRB":
 
     # Filter data sesuai tahun
     filter_pdrb = pdrb[(pdrb["Tahun"] >= start_year) & (pdrb["Tahun"] <= end_year)]
-
     # Chart
     chart_pdrb = alt.Chart(filter_pdrb).mark_line(point=True).encode(
         x='Tahun:O',
@@ -44,8 +89,36 @@ if selected == "PDRB":
     ).properties(
         title=f"{pdrb_option} dari {start_year} hingga {end_year}"
     )
-
     st.altair_chart(chart_pdrb, use_container_width=True)
+
+    if pdrb_option == "PDRB ADHB":
+       pdrb_lapus = adhb_Lapus
+    else:
+       pdrb_lapus = adhk_Lapus
+
+    selected_year = st.selectbox("Pilih Tahun", pdrb_lapus['Tahun'])
+    row = pdrb_lapus.loc[pdrb_lapus['Tahun'] == selected_year].iloc[0]
+    sektor_data = {
+        'Pertanian, Kehutanan, dan Perikanan': row['Pertanian, Kehutanan, dan Perikanan'],
+        'Pertambangan dan Penggalian ': row['Pertambangan dan Penggalian '],
+        'Industri Pengolahan': row['Industri Pengolahan'],
+        'Pengadaan Listrik dan Gas': row['Pengadaan Listrik dan Gas'],
+        'Pengadaan Air, Pengelolaan Sampah, Limbah dan Daur Ulang': row['Pengadaan Air, Pengelolaan Sampah, Limbah dan Daur Ulang'],
+        'Konstruksi': row['Konstruksi'],
+        'Perdagangan Besar dan Eceran; Reparasi Mobil dan Sepeda Motor': row['Perdagangan Besar dan Eceran; Reparasi Mobil dan Sepeda Motor'],
+        'Transportasi dan Pergudangan ': row['Transportasi dan Pergudangan '],
+        'Penyediaan Akomodasi dan Makan Minum': row['Penyediaan Akomodasi dan Makan Minum'],
+        'Informasi dan Komunikasi': row['Informasi dan Komunikasi'],
+        'Jasa Keuangan dan Asuransi': row['Jasa Keuangan dan Asuransi'],
+        'Real Estate': row['Real Estate'],
+        'Jasa perusahaan': row['Jasa perusahaan'],
+        'Administrasi pemerintahan, pertahanan, dan Jaminan sosial wajib': row['Administrasi pemerintahan, pertahanan, dan Jaminan sosial wajib'],
+        'Jasa Pendidikan': row['Jasa Pendidikan'],
+        'Jasa Kesehatan dan Kegiatan Sosial': row['Jasa Kesehatan dan Kegiatan Sosial'],
+        'Jasa Lainnya': row['Jasa Lainnya']
+    }
+    st.bar_chart(sektor_data) 
+        
     st.subheader("Contoh Intepretasi")
     st.write("Misalnya pada tahun 2024 diketahui PDRB Kabupaten Sanggau sebesar 26.523.743.32 juta rupiah, artinya jumlah barang dan jasa yang dihasilkan di Kabupaten Sanggau pada tahun  2024 adalah 26.523.743.32 juta rupiah.")
     st.subheader("Sumber Data")
